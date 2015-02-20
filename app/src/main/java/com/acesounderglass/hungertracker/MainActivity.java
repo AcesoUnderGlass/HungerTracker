@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,49 +30,34 @@ import java.util.Date;
 public class MainActivity extends ActionBarActivity {
     String FILENAME = "hello_file";
     FileInputStream fis = null;
+    TextView outputText;
+    EditText inputText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        outputText = (TextView) findViewById(R.id.result_text);
+        inputText = (EditText) findViewById(R.id.extractEditText);
 
 
+        // set edit text to editable
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(inputText, InputMethodManager.SHOW_IMPLICIT);
+
+        //Store data in edit field when store button is clicked
         Button storeButton = (Button) findViewById(R.id.store_button);
-        try {
-            fis = openFileInput(FILENAME);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
         storeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                writeToFile(getDate(), Context.MODE_APPEND);
+        }});
 
-                String newText = ((EditText) findViewById(R.id.extractEditText)).getText().toString();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                String currentDateandTime = sdf.format(new Date());
-                String string = currentDateandTime + "   " + newText + "\n";
-
-
-                try {
-                    FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
-                    fos.write(string.getBytes());
-                    fos.close();
-                } catch (java.io.IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
+        //Clear all text
         Button clearButton = (Button) findViewById(R.id.clear_button);
         clearButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    try {
-                        FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                        fos.write("".getBytes());
-                        fos.close();
-                    }catch (java.io.IOException e) {
-                        e.printStackTrace();
-                    }
+                    writeToFile("", Context.MODE_PRIVATE);
                 }
             }
         );
@@ -80,10 +66,14 @@ public class MainActivity extends ActionBarActivity {
         retrieveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                try {
+                    fis = openFileInput(FILENAME);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 // for each line in file: add to list
                 // last item: clear list button
 
-                TextView txtView = (TextView) findViewById(R.id.result_text);
                 //ArrayList<String> forecasts = new ArrayList<>();
                 byte[] data = new byte[20];
                 String string = "";
@@ -97,19 +87,34 @@ public class MainActivity extends ActionBarActivity {
                     string = string + bytesToString(data);
                 }
 
-                txtView.setText(string);
-
-               /* ArrayAdapter<String> list_adaptor = new ArrayAdapter<>(
-                        getActivity(), R.layout.history,
-                        R.id.history, forecasts
-                );
-
-                ListView listView = (ListView) rootView.findViewById(R.id.history);
-                listView.setAdapter(list_adaptor);*/
-
+                setOutputText(string);
             }
         });
+    }
 
+    private String getDate() {
+
+        String newText = ((EditText) findViewById(R.id.extractEditText)).getText().toString();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        String currentDateandTime = sdf.format(new Date());
+        String string = currentDateandTime + "   " + newText + "\n";
+
+        return string;
+    }
+
+    private void writeToFile(String string, int mode) {
+        try {
+            FileOutputStream fos = openFileOutput(FILENAME, mode);
+            fos.write(string.getBytes());
+            fos.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setOutputText(String string) {
+
+        outputText.setText(string);
 
     }
 
