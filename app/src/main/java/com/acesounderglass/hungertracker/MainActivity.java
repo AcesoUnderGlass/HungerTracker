@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
-    String FILENAME = "hello_file";
+    String FILENAME = "hunger_tracker";
     FileInputStream fis = null;
     TextView outputText;
     EditText inputText;
@@ -113,9 +113,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setOutputText(String string) {
-
         outputText.setText(string);
-
     }
 
     private String bytesToString(byte[] bytes) {
