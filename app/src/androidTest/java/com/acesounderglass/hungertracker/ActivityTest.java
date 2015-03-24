@@ -2,7 +2,9 @@ package com.acesounderglass.hungertracker;
 
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 /**
@@ -10,6 +12,8 @@ import android.widget.TextView;
  */
 public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
     private Activity activity;
+    EditText inputText;
+    TextView outputText;
 
     public ActivityTest() {
         super(MainActivity.class);
@@ -19,43 +23,47 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         super.setUp();
         setActivityInitialTouchMode(true);
         activity = getActivity();
-    }
-
-    public void testOne() {
         assertNotNull(activity);
-    }
 
-    public void testOutputBox() {
-        testButtonExists(R.id.result_text, "output text box");
-        TextView outputText = (TextView) activity.findViewById(R.id.result_text);
+        // Verify initial state before tests can alter it
+        inputText = (EditText) activity.findViewById(R.id.input_text);
+        assertNotNull(inputText);
+        assertEquals("0", inputText.getText().toString());
 
+        outputText = (TextView) activity.findViewById(R.id.result_text);
+        assertNotNull(inputText);
+        assertEquals("Start", outputText.getText().toString());
 
-        String text = outputText.getText().toString();
-        assertEquals("Start", text);
-    }
-
-    public void testInputBox() {
-        testButtonExists(R.id.input_text, "Input text box");
-        TextView inputText = (TextView) activity.findViewById(R.id.input_text);
-
-        String text = inputText.getText().toString();
-        assertEquals("0", text);
-    }
-
-    public void testStoreButtonExists() {
         testButtonExists(R.id.store_button, "Store button");
-    }
-
-    public void testClearButtonExists() {
         testButtonExists(R.id.clear_button, "Clear button");
-    }
-
-    public void testRetrieveButtonExists() {
         testButtonExists(R.id.retrieve_button, "Retrieve button");
     }
+
+    public void testVerifyInput() {
+        sendKeystrokesToInputBox(new int[] {KeyEvent.KEYCODE_FORWARD_DEL, KeyEvent.KEYCODE_6});
+        assertEquals("6", inputText.getText().toString());
+    }
+
+    // TODO Mock out HunterTrackerWriter, add tests for it
 
     private void testButtonExists(int id, String name) {
         View view = activity.findViewById(id);
         assertNotNull("View " + name + " does not exist", view);
+    }
+
+    private void sendKeystrokesToInputBox(int[] keycodes) {
+
+        final EditText inputText = (EditText) activity.findViewById(R.id.input_text);
+
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                inputText.requestFocus();
+            }
+        });
+
+        getInstrumentation().waitForIdleSync();
+        for(int keycode : keycodes) {
+            this.sendKeys(keycode);
+        }
     }
 }
