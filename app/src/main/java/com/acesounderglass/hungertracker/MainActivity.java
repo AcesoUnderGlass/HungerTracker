@@ -15,23 +15,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
     String FILENAME = "hunger_tracker";
-    FileInputStream fis = null;
     TextView outputText;
     EditText inputText;
+    HungerTrackerWriter writer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +32,7 @@ public class MainActivity extends ActionBarActivity {
 
         outputText = (TextView) findViewById(R.id.result_text);
         inputText = (EditText) findViewById(R.id.extractEditText);
+        writer = new HungerTrackerWriter(FILENAME, this.getBaseContext());
 
 
         // set edit text to editable
@@ -57,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
         Button clearButton = (Button) findViewById(R.id.clear_button);
         clearButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    writeToFile("", Context.MODE_PRIVATE);
+                writer.clearFile();
                 }
             }
         );
@@ -66,28 +59,8 @@ public class MainActivity extends ActionBarActivity {
         retrieveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                try {
-                    fis = openFileInput(FILENAME);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                // for each line in file: add to list
-                // last item: clear list button
 
-                //ArrayList<String> forecasts = new ArrayList<>();
-                byte[] data = new byte[20];
-                String string = "";
-                //TODO: how to tell I've reached end of file?
-                for(int i = 0; i < 10; i++) {
-                    try {
-                        fis.read(data);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    string = string + bytesToString(data);
-                }
-
-                setOutputText(string);
+                setOutputText(writer.retrieveData());
             }
         });
     }
@@ -103,13 +76,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void writeToFile(String string, int mode) {
-        try {
-            FileOutputStream fos = openFileOutput(FILENAME, mode);
-            fos.write(string.getBytes());
-            fos.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        writer.writeToFile(string);
     }
 
     private void setOutputText(String string) {
@@ -117,7 +84,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private String bytesToString(byte[] bytes) {
-
         return new String(bytes);
     }
 
