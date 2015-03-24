@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="0"
         android:editable="true"
-        android:id="@+id/extractEditText"
+        android:id="@+id/input_text"
         android:layout_above="@+id/store_button"
         android:layout_toRightOf="@+id/store_button"
         android:layout_toEndOf="@+id/store_button"

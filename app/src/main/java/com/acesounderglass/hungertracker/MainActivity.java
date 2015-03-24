@@ -1,18 +1,14 @@
 package com.acesounderglass.hungertracker;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -31,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         outputText = (TextView) findViewById(R.id.result_text);
-        inputText = (EditText) findViewById(R.id.extractEditText);
+        inputText = (EditText) findViewById(R.id.input_text);
         writer = new HungerTrackerWriter(FILENAME, this.getBaseContext());
 
 
@@ -67,7 +63,7 @@ public class MainActivity extends ActionBarActivity {
 
     private String getDate() {
 
-        String newText = ((EditText) findViewById(R.id.extractEditText)).getText().toString();
+        String newText = ((EditText) findViewById(R.id.input_text)).getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         String currentDateandTime = sdf.format(new Date());
         String string = currentDateandTime + "   " + newText + "\n";
