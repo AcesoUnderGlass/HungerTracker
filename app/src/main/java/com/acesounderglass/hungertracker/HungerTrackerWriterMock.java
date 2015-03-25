@@ -12,6 +12,8 @@ import java.io.IOException;
  */
 public class HungerTrackerWriterMock extends HungerTrackerWriter {
     int writeToFileCount = 0;
+    int clearFileCount = 0;
+    int retrieveDataCount = 0;
 
     public HungerTrackerWriterMock(String filename, Context mBase) {
         super(filename, mBase);
@@ -21,14 +23,16 @@ public class HungerTrackerWriterMock extends HungerTrackerWriter {
         writeToFileCount++;
     }
 
-    public int getWriteToFileCount() { return writeToFileCount; }
-
-
     public void clearFile() {
-
+        clearFileCount++;
     }
 
     public String retrieveData() {
+        retrieveDataCount++;
         return "";
     }
+
+    public int getWriteToFileCount() { return writeToFileCount; }
+    public int getClearFileCount() {return clearFileCount;  }
+    public int getRetrieveDataCount() {return retrieveDataCount; }
 }

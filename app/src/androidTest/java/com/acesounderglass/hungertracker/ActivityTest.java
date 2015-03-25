@@ -56,13 +56,26 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     }
 
     public void testStoreButton() {
-        mockWriter = getMockWriter();
-        activity.setWriter(mockWriter);
+        setMockWriter();
         int startWriteToFileCount = mockWriter.getWriteToFileCount();
         clickButton(R.id.store_button);
         assertEquals(startWriteToFileCount+1, mockWriter.getWriteToFileCount());
     }
 
+    public void testClearButton() {
+        setMockWriter();
+        int startClearCount = mockWriter.getClearFileCount();
+        clickButton(R.id.clear_button);
+        assertEquals(startClearCount+1, mockWriter.getClearFileCount());
+
+    }
+
+    public void testRetrieveButton() {
+        setMockWriter();
+        int startRetrieveCount = mockWriter.getRetrieveDataCount();
+        clickButton(R.id.retrieve_button);
+        assertEquals(startRetrieveCount+1, mockWriter.getRetrieveDataCount());
+    }
 
     private void testButtonExists(int id, String name) {
         View view = activity.findViewById(id);
@@ -95,10 +108,11 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         getInstrumentation().waitForIdleSync();
     }
 
-    private HungerTrackerWriterMock getMockWriter() {
+    // Necessary because setUp() is run before each test.  Will go away when that is fixed
+    private void setMockWriter() {
         if (mockWriter==null) {
             mockWriter = new HungerTrackerWriterMock("", activity.getBaseContext());
+            activity.setWriter(mockWriter);
         }
-        return mockWriter;
     }
 }
