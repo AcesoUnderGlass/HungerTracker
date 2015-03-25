@@ -4,26 +4,35 @@ import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 
 /**
  * Created by elvan on 3/14/2015.
  */
 public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
-    private Activity activity;
+    private MainActivity activity;
     EditText inputText;
     TextView outputText;
+    HungerTrackerWriterMock mockWriter;
 
     public ActivityTest() {
+
         super(MainActivity.class);
     }
+
+    //TODO figure out how to do one time set up
+    //TODO mock once, in set up, not in text (ew)
+    //TODO use mockito, not a hand mock
 
     public void setUp() throws Exception {
         super.setUp();
         setActivityInitialTouchMode(true);
         activity = getActivity();
         assertNotNull(activity);
+
 
         // Verify initial state before tests can alter it
         inputText = (EditText) activity.findViewById(R.id.input_text);
@@ -39,12 +48,21 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         testButtonExists(R.id.retrieve_button, "Retrieve button");
     }
 
-    public void testVerifyInput() {
-        sendKeystrokesToInputBox(new int[] {KeyEvent.KEYCODE_FORWARD_DEL, KeyEvent.KEYCODE_6});
+    public void testCanInput() {
+        sendKeystrokesToInputBox(new int[] {
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_6});
         assertEquals("6", inputText.getText().toString());
     }
 
-    // TODO Mock out HunterTrackerWriter, add tests for it
+    public void testStoreButton() {
+        mockWriter = getMockWriter();
+        activity.setWriter(mockWriter);
+        int startWriteToFileCount = mockWriter.getWriteToFileCount();
+        clickButton(R.id.store_button);
+        assertEquals(startWriteToFileCount+1, mockWriter.getWriteToFileCount());
+    }
+
 
     private void testButtonExists(int id, String name) {
         View view = activity.findViewById(id);
@@ -52,9 +70,6 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     }
 
     private void sendKeystrokesToInputBox(int[] keycodes) {
-
-        final EditText inputText = (EditText) activity.findViewById(R.id.input_text);
-
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 inputText.requestFocus();
@@ -65,5 +80,25 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         for(int keycode : keycodes) {
             this.sendKeys(keycode);
         }
+        getInstrumentation().waitForIdleSync();
+    }
+
+    private void clickButton(int buttonId) {
+        final Button button = (Button) activity.findViewById(buttonId);
+
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                button.requestFocus();
+                button.performClick();
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+    }
+
+    private HungerTrackerWriterMock getMockWriter() {
+        if (mockWriter==null) {
+            mockWriter = new HungerTrackerWriterMock("", activity.getBaseContext());
+        }
+        return mockWriter;
     }
 }

@@ -61,6 +61,10 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    public void setWriter(HungerTrackerWriter writer) {
+        this.writer = writer;
+    }
+
     private String getDate() {
 
         String newText = ((EditText) findViewById(R.id.input_text)).getText().toString();
