@@ -30,7 +30,6 @@ public class MainActivity extends ActionBarActivity {
         inputText = (EditText) findViewById(R.id.input_text);
         writer = new HungerTrackerWriter(FILENAME, this.getBaseContext());
 
-
         // set edit text to editable
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(inputText, InputMethodManager.SHOW_IMPLICIT);
@@ -39,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
         Button storeButton = (Button) findViewById(R.id.store_button);
         storeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                writeToFile(getDate(), Context.MODE_APPEND);
+                writer.writeToFileWithDate(getInput());
         }});
 
         //Clear all text
@@ -65,28 +64,17 @@ public class MainActivity extends ActionBarActivity {
         this.writer = writer;
     }
 
-    private String getDate() {
+    private String getInput () {
 
         String newText = ((EditText) findViewById(R.id.input_text)).getText().toString();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        String currentDateandTime = sdf.format(new Date());
-        String string = currentDateandTime + "   " + newText + "\n";
+        // TODO filter input
 
-        return string;
-    }
-
-    private void writeToFile(String string, int mode) {
-        writer.writeToFile(string);
+        return newText;
     }
 
     private void setOutputText(String string) {
         outputText.setText(string);
     }
-
-    private String bytesToString(byte[] bytes) {
-        return new String(bytes);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

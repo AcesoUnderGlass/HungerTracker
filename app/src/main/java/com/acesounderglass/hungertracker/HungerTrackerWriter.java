@@ -1,11 +1,14 @@
 package com.acesounderglass.hungertracker;
 
 import android.content.Context;
+import android.widget.EditText;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by elvan on 3/21/2015.
@@ -14,6 +17,10 @@ public class HungerTrackerWriter {
 
     String filename;
     Context mBase;
+
+    public HungerTrackerWriter() {
+
+    }
 
     public HungerTrackerWriter(String filename, Context mBase) {
         this.filename = filename;
@@ -29,6 +36,25 @@ public class HungerTrackerWriter {
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void writeToFileWithDate(String val) {
+        String toWrite = getTimeStamp() + "\t" + val + "\n";
+        try {
+            FileOutputStream fos = mBase.openFileOutput(filename, Context.MODE_APPEND);
+            fos.write(toWrite.getBytes());
+            fos.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getTimeStamp() {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        String currentDateandTime = sdf.format(new Date());
+
+        return currentDateandTime;
     }
 
 
