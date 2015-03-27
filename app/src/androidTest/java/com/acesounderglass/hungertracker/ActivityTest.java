@@ -7,6 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import static org.easymock.EasyMock.*;
+import org.easymock.EasyMockRule;
+import org.easymock.TestSubject;
+import org.easymock.Mock;
+
 
 
 /**
@@ -17,6 +22,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     EditText inputText;
     TextView outputText;
     HungerTrackerWriterMock mockWriter;
+    HungerTrackerWriter mockWriter2;
 
     public ActivityTest() {
 
@@ -72,9 +78,17 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
 
     public void testRetrieveButton() {
         setMockWriter();
-        int startRetrieveCount = mockWriter.getRetrieveDataCount();
+//        int startRetrieveCount = mockWriter.getRetrieveDataCount();
+//        clickButton(R.id.retrieve_button);
+//        assertEquals(startRetrieveCount+1, mockWriter.getRetrieveDataCount());
+
+        mockWriter2.retrieveData();
+        replay(mockWriter2);
         clickButton(R.id.retrieve_button);
-        assertEquals(startRetrieveCount+1, mockWriter.getRetrieveDataCount());
+        verify(mockWriter2);
+
+
+
     }
 
     private void testButtonExists(int id, String name) {
@@ -111,7 +125,8 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     // Necessary because setUp() is run before each test.  Will go away when that is fixed
     private void setMockWriter() {
         if (mockWriter==null) {
-            mockWriter = new HungerTrackerWriterMock("", activity.getBaseContext());
+//            mockWriter = new HungerTrackerWriterMock("", activity.getBaseContext());
+            mockWriter2 = createMock(HungerTrackerWriter.class);
             activity.setWriter(mockWriter);
         }
     }
