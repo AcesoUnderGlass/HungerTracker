@@ -8,6 +8,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.mockito.Mockito.*;
+
 
 /**
  * Created by elvan on 3/14/2015.
@@ -17,6 +23,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     EditText inputText;
     TextView outputText;
     HungerTrackerWriterMock mockWriter;
+    HungerTrackerWriter mockitoWriter;
 
     public ActivityTest() {
 
@@ -46,6 +53,11 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         testButtonExists(R.id.store_button, "Store button");
         testButtonExists(R.id.clear_button, "Clear button");
         testButtonExists(R.id.retrieve_button, "Retrieve button");
+    }
+
+    public void testCanCreateMockito() {
+       // mockitoWriter = mock(HungerTrackerWriter.class);
+        List mockedList = Mockito.mock(List.class);
     }
 
     public void testCanInput() {
