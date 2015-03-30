@@ -72,6 +72,21 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         verify(mockWriter);
     }
 
+    public void testNumericInputOnly() {
+        sendKeystrokesToInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_A});
+        assertEquals("", inputText.getText().toString());
+    }
+
+    public void testSingleDigitInputOnly() {
+        sendKeystrokesToInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_6,
+                KeyEvent.KEYCODE_5});
+        assertEquals("6", inputText.getText().toString());
+    }
+
     public void testRetrieveButton() {
         setMockWriter();
 
