@@ -3,20 +3,24 @@ package com.acesounderglass.hungertracker;
 import android.content.Context;
 import android.widget.EditText;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 
 /**
  * Created by elvan on 3/21/2015.
  */
 public class HungerTrackerWriter {
 
-    String filename;
-    Context mBase;
+    private String filename;
+    private Context mBase;
+    private Scanner scanner;
 
     public HungerTrackerWriter() {
 
@@ -71,29 +75,50 @@ public class HungerTrackerWriter {
         }
     }
 
-    public String retrieveData() {
-        byte[] data = new byte[20];
-        String string = "";
+    public ArrayList<String> retrieveDataAsList() {
+        ArrayList<String> list = new ArrayList<>();
         try {
-            FileInputStream fis = mBase.openFileInput(filename);
-
-            //ArrayList<String> forecasts = new ArrayList<>();
-            //TODO: how to tell I've reached end of file?
-            for(int i = 0; i < 10; i++) {
-                try {
-                    fis.read(data);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                string = string + bytesToString(data);
-            }
+            scanner = new Scanner(mBase.openFileInput(filename));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        // for each line in file: add to list
-        // last item: clear list button
+        scanner.useDelimiter("\n");
+        String nextLine  = getNextLine();
+        while (nextLine!=null) {
+            list.add(nextLine);
+            nextLine = getNextLine();
+        }
 
-        return string;
+        return list;
+    }
+
+    public String retrieveData() {
+        ArrayList<String> list = retrieveDataAsList();
+        String output = "";
+        for( String line : list ) {
+            output = output + line + "\n";
+        }
+//        String output = "";
+//        try {
+//            scan = new Scanner(mBase.openFileInput(filename));
+//            scan.useDelimiter("\n");
+//            String nextLine  = getNextLine();
+//            while (nextLine!=null) {
+//                output = output + nextLine + "\n";
+//                nextLine = getNextLine();
+//            }
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+        return output;
+    }
+
+    public String getNextLine() {
+        if(scanner.hasNext()) {
+            return scanner.next();
+        }
+        return null;
     }
 
     private String bytesToString(byte[] bytes) {
