@@ -5,7 +5,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.easymock.EasyMock.*;
 
 
@@ -16,7 +22,7 @@ import static org.easymock.EasyMock.*;
 public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
     private MainActivity activity;
     EditText inputText;
-    TextView outputText;
+    ListView historyList;
     HungerTrackerWriter mockWriter;
 
     public ActivityTest() {
@@ -24,7 +30,6 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     }
 
     //TODO figure out how to do one time set up
-    //TODO mock once, in set up, not in text (ew)
 
     public void setUp() throws Exception {
         super.setUp();
@@ -40,13 +45,12 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         assertNotNull(inputText);
         assertEquals("0", inputText.getText().toString());
 
-        outputText = (TextView) activity.findViewById(R.id.result_text);
-        assertNotNull(inputText);
-        assertEquals("Start", outputText.getText().toString());
+        historyList = (ListView) activity.findViewById(R.id.history_list);
 
-        testButtonExists(R.id.store_button, "Store button");
-        testButtonExists(R.id.clear_button, "Clear button");
-        testButtonExists(R.id.retrieve_button, "Retrieve button");
+        testViewExists(R.id.store_button, "Store button");
+        testViewExists(R.id.clear_button, "Clear button");
+        testViewExists(R.id.retrieve_button, "Retrieve button");
+        testViewExists(R.id.history_list, "History list");
     }
 
     public void testCanInput() {
@@ -90,13 +94,22 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     public void testRetrieveButton() {
         setMockWriter();
 
-        expect(mockWriter.retrieveData()).andReturn("");
+        String[] data = {"1", "2", "3", "bat", "car"};
+        ArrayList<String> expectedList = new ArrayList<String>(Arrays.asList(data));
+        expect(mockWriter.retrieveAllData()).andReturn(expectedList);
         replay(mockWriter);
+
         clickButton(R.id.retrieve_button);
+
         verify(mockWriter);
+        ListAdapter adapter = historyList.getAdapter();
+        assertEquals(data.length, adapter.getCount());
+        for(int i =0; i<data.length; i++) {
+            assertEquals(expectedList.get(i), adapter.getItem(i));
+        }
     }
 
-    private void testButtonExists(int id, String name) {
+    private void testViewExists(int id, String name) {
         View view = activity.findViewById(id);
         assertNotNull("View " + name + " does not exist", view);
     }

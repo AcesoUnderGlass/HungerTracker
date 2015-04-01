@@ -19,7 +19,6 @@ public class HungerTrackerWriterTest extends ActivityInstrumentationTestCase2 {
     String fileName = "test-file";
     HungerTrackerWriter hungerTrackerWriter;
     Context mBase;
-    Scanner scanner;
 
     public HungerTrackerWriterTest() {
         super(MainActivity.class);
@@ -33,23 +32,10 @@ public class HungerTrackerWriterTest extends ActivityInstrumentationTestCase2 {
         for (String file : mBase.fileList()) {
             mBase.deleteFile(file);
         }
-
     }
 
     public void tearDown() {
         getInstrumentation().getTargetContext().deleteFile(fileName);
-    }
-
-    public void testCanWriteSingleDataPointAndReadToFile() {
-        String testText = "foo";
-        assertEquals(0, mBase.fileList().length);
-        hungerTrackerWriter.writeToFile(testText);
-        String[] fileList = mBase.fileList();
-        assertEquals(1, fileList.length);
-        assertEquals(fileName, fileList[0]);
-
-        String retrievedText = hungerTrackerWriter.retrieveData();
-        assertEquals(testText + "\n", retrievedText);
     }
 
     public void testCanWriteMultipleDataPointsAndReadToFile() {
@@ -58,12 +44,11 @@ public class HungerTrackerWriterTest extends ActivityInstrumentationTestCase2 {
             hungerTrackerWriter.writeToFile(d + "\n");
         }
 
-        String[] retrievedText = hungerTrackerWriter.retrieveDataAsList().toArray(
-                new String[hungerTrackerWriter.retrieveDataAsList().size()]);
+        String[] retrievedText = hungerTrackerWriter.retrieveAllData().toArray(
+                new String[hungerTrackerWriter.retrieveAllData().size()]);
 
         for(int i=0; i<data.length; i++) {
             assertEquals(data[i], retrievedText[i]);
         }
-
     }
 }

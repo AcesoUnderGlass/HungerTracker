@@ -75,7 +75,7 @@ public class HungerTrackerWriter {
         }
     }
 
-    public ArrayList<String> retrieveDataAsList() {
+    public ArrayList<String> retrieveAllData() {
         ArrayList<String> list = new ArrayList<>();
         try {
             scanner = new Scanner(mBase.openFileInput(filename));
@@ -90,28 +90,6 @@ public class HungerTrackerWriter {
         }
 
         return list;
-    }
-
-    public String retrieveData() {
-        ArrayList<String> list = retrieveDataAsList();
-        String output = "";
-        for( String line : list ) {
-            output = output + line + "\n";
-        }
-//        String output = "";
-//        try {
-//            scan = new Scanner(mBase.openFileInput(filename));
-//            scan.useDelimiter("\n");
-//            String nextLine  = getNextLine();
-//            while (nextLine!=null) {
-//                output = output + nextLine + "\n";
-//                nextLine = getNextLine();
-//            }
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-        return output;
     }
 
     public String getNextLine() {

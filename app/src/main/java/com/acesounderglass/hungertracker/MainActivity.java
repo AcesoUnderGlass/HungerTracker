@@ -7,28 +7,32 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
     String FILENAME = "hunger_tracker";
-    TextView outputText;
     EditText inputText;
     HungerTrackerWriter writer;
+    ListView historyList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        outputText = (TextView) findViewById(R.id.result_text);
         inputText = (EditText) findViewById(R.id.input_text);
         writer = new HungerTrackerWriter(FILENAME, this.getBaseContext());
+        historyList = (ListView) findViewById(R.id.history_list);
 
         // set edit text to editable
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -53,11 +57,17 @@ public class MainActivity extends ActionBarActivity {
                 Button retrieveButton = (Button) findViewById(R.id.retrieve_button);
         retrieveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-
-                setOutputText(writer.retrieveData());
+                displayHistory();
             }
         });
+    }
+
+    private void displayHistory() {
+        ArrayList<String> data = writer.retrieveAllData();
+        ArrayAdapter adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,
+                data);
+        historyList.setAdapter(adapter);
     }
 
     public void setWriter(HungerTrackerWriter writer) {
@@ -67,13 +77,7 @@ public class MainActivity extends ActionBarActivity {
     private String getInput () {
 
         String newText = ((EditText) findViewById(R.id.input_text)).getText().toString();
-        // TODO filter input
-
         return newText;
-    }
-
-    private void setOutputText(String string) {
-        outputText.setText(string);
     }
 
     @Override
