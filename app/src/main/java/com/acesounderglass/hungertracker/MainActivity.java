@@ -1,6 +1,14 @@
 package com.acesounderglass.hungertracker;
 
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -60,7 +68,47 @@ public class MainActivity extends ActionBarActivity {
                 displayHistory();
             }
         });
+
+        Button alarmButton = (Button) findViewById(R.id.alarm_button);
+        // TODO: change to timed notification
+        alarmButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                createNotification();
+            }
+        });
     }
+
+//    private void setAlarm() {
+//        Date futureDate = new Date(new Date().getTime() + 200);
+//        Intent intent = new Intent(this, MainActivity.class);
+//        PendingIntent pi = PendingIntent.getActivity(this,6767, intent, 0);
+//        AlarmManager am = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+//        am.set(AlarmManager.RTC_WAKEUP, futureDate.getTime(), pi);
+//    }
+
+    protected void createNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Hunger Tracker")
+                .setContentText("Time to record your fullness level");
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        builder.setContentIntent(resultPendingIntent);
+
+        Notification notification = builder.build();
+        notificationManager.notify(2, notification);
+    }
+
 
     private void displayHistory() {
         ArrayList<String> data = writer.retrieveAllData();

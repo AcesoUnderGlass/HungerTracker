@@ -1,5 +1,13 @@
 package com.acesounderglass.hungertracker;
 
+import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.service.notification.NotificationListenerService;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.KeyEvent;
 import android.view.View;
@@ -51,6 +59,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         testViewExists(R.id.clear_button, "Clear button");
         testViewExists(R.id.retrieve_button, "Retrieve button");
         testViewExists(R.id.history_list, "History list");
+        testViewExists(R.id.alarm_button, "Alarm Button");
     }
 
     public void testCanInput() {
@@ -107,6 +116,14 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         for(int i =0; i<data.length; i++) {
             assertEquals(expectedList.get(i), adapter.getItem(i));
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void testAlarmButton() {
+        clickButton(R.id.alarm_button);
+        AlarmManager alarm = (AlarmManager) getInstrumentation().getTargetContext().getSystemService(Context.ALARM_SERVICE);
+        AlarmManager.AlarmClockInfo nextAlarm = alarm.getNextAlarmClock();
+
     }
 
     private void testViewExists(int id, String name) {
