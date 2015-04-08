@@ -1,13 +1,5 @@
 package com.acesounderglass.hungertracker;
 
-import android.annotation.TargetApi;
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.service.notification.NotificationListenerService;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,7 +7,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +54,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     }
 
     public void testCanInput() {
-        sendKeystrokesToInputBox(new int[]{
+        sendKeystrokesToHungerInputBox(new int[]{
                 KeyEvent.KEYCODE_FORWARD_DEL,
                 KeyEvent.KEYCODE_6});
         assertEquals("6", inputText.getText().toString());
@@ -77,6 +68,16 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         verify(mockWriter);
     }
 
+    public void testStoreButtonEmptyInput() {
+        setMockWriter();
+        replay(mockWriter);
+        sendKeystrokesToHungerInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL});
+        clickButton(R.id.store_button);
+        verify(mockWriter);
+
+    }
+
     public void testClearButton() {
         setMockWriter();
         mockWriter.clearFile();
@@ -86,14 +87,14 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     }
 
     public void testNumericInputOnly() {
-        sendKeystrokesToInputBox(new int[]{
+        sendKeystrokesToHungerInputBox(new int[]{
                 KeyEvent.KEYCODE_FORWARD_DEL,
                 KeyEvent.KEYCODE_A});
         assertEquals("", inputText.getText().toString());
     }
 
     public void testSingleDigitInputOnly() {
-        sendKeystrokesToInputBox(new int[]{
+        sendKeystrokesToHungerInputBox(new int[]{
                 KeyEvent.KEYCODE_FORWARD_DEL,
                 KeyEvent.KEYCODE_6,
                 KeyEvent.KEYCODE_5});
@@ -118,12 +119,24 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void testAlarmButton() {
+    public void testAlarmButtonNoData() {
+        // clear alarm time input box, just in case
+        sendKeystrokeToTimeInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_FORWARD_DEL});
         clickButton(R.id.alarm_button);
-        AlarmManager alarm = (AlarmManager) getInstrumentation().getTargetContext().getSystemService(Context.ALARM_SERVICE);
-        AlarmManager.AlarmClockInfo nextAlarm = alarm.getNextAlarmClock();
+    }
 
+    public void testAlarmButtonWithData() {
+        sendKeystrokeToTimeInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_1,
+                KeyEvent.KEYCODE_2});
+        clickButton(R.id.alarm_button);
+        sendKeystrokeToTimeInputBox(new int[]{
+                KeyEvent.KEYCODE_FORWARD_DEL,
+                KeyEvent.KEYCODE_FORWARD_DEL});
     }
 
     private void testViewExists(int id, String name) {
@@ -131,13 +144,22 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         assertNotNull("View " + name + " does not exist", view);
     }
 
-    private void sendKeystrokesToInputBox(int[] keycodes) {
+    private void sendKeystrokeToTimeInputBox(int[] keycodes) {
+        sendKeystrokesToInputBox(
+                keycodes,
+                (EditText) activity.findViewById(R.id.alarm_time));
+    }
+
+    private void sendKeystrokesToHungerInputBox(int[] keycodes) {
+        sendKeystrokesToInputBox(keycodes, inputText);
+    }
+
+    private void sendKeystrokesToInputBox(int[] keycodes, final EditText textbox) {
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                inputText.requestFocus();
+                textbox.requestFocus();
             }
         });
-
         getInstrumentation().waitForIdleSync();
         for(int keycode : keycodes) {
             this.sendKeys(keycode);
@@ -147,7 +169,6 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
 
     private void clickButton(int buttonId) {
         final Button button = (Button) activity.findViewById(buttonId);
-
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 button.requestFocus();
@@ -160,7 +181,6 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
     // Necessary because setUp() is run before each test.  Will go away when that is fixed
     private void setMockWriter() {
         if (mockWriter==null) {
-
             mockWriter = createMock(HungerTrackerWriter.class);
             activity.setWriter(mockWriter);
         }

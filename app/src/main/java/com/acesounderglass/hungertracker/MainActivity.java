@@ -6,8 +6,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -50,7 +53,10 @@ public class MainActivity extends ActionBarActivity {
         Button storeButton = (Button) findViewById(R.id.store_button);
         storeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                writer.writeToFileWithDate(getInput());
+                String input = getInput();
+                if(input.length() > 0) {
+                    writer.writeToFileWithDate(getInput());
+                }
         }});
 
         //Clear all text
@@ -70,21 +76,52 @@ public class MainActivity extends ActionBarActivity {
         });
 
         Button alarmButton = (Button) findViewById(R.id.alarm_button);
-        // TODO: change to timed notification
         alarmButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                createNotification();
+                setAlarm();
             }
         });
     }
 
-//    private void setAlarm() {
-//        Date futureDate = new Date(new Date().getTime() + 200);
-//        Intent intent = new Intent(this, MainActivity.class);
-//        PendingIntent pi = PendingIntent.getActivity(this,6767, intent, 0);
-//        AlarmManager am = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
-//        am.set(AlarmManager.RTC_WAKEUP, futureDate.getTime(), pi);
-//    }
+    private void setAlarm() {
+        String alarmId = "intent_send_notification";
+
+        AlarmManager alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+        Intent reminderIntent = new Intent();
+        reminderIntent.setAction(alarmId);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, reminderIntent, 0);
+        long timeToAlarm = getTime();
+
+        if(timeToAlarm == -1) {
+            return;
+        }
+        alarmManager.set(AlarmManager.RTC, getTime(), pendingIntent);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(alarmId);
+
+        BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                createNotification();
+            }
+        };
+
+        this.registerReceiver(alarmReceiver, intentFilter);
+    }
+
+    private long getTime() {
+        String newText = ((EditText) findViewById(R.id.alarm_time)).getText().toString();
+
+        if(newText.length() == 0) {
+            return -1;
+        }
+        long convert = Integer.parseInt(newText)*60000;
+
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(System.currentTimeMillis());
+        return time.getTimeInMillis()+convert;
+    }
 
     protected void createNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
@@ -122,7 +159,7 @@ public class MainActivity extends ActionBarActivity {
         this.writer = writer;
     }
 
-    private String getInput () {
+    private String getInput() {
 
         String newText = ((EditText) findViewById(R.id.input_text)).getText().toString();
         return newText;
