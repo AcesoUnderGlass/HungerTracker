@@ -1,0 +1,1 @@
+To build a release apk, the build.gradle expects a key in location $key_path with key and store passwords $key_password.  To build you can populate these yourself, or hardcode new values in build.gradle

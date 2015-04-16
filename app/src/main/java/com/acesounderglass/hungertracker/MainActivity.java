@@ -21,6 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -51,6 +53,8 @@ public class MainActivity extends ActionBarActivity {
                 String input = getInput();
                 if(input.length() > 0) {
                     writer.writeToFileWithDate(getInput());
+                    CharSequence text = "Entry saved";
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
                 }
         }});
 
@@ -88,6 +92,8 @@ public class MainActivity extends ActionBarActivity {
         long timeToAlarm = getTime();
 
         if(timeToAlarm == -1) {
+            CharSequence text = "Please enter time until alarm";
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
             return;
         }
         alarmManager.set(AlarmManager.RTC, getTime(), pendingIntent);
@@ -103,19 +109,32 @@ public class MainActivity extends ActionBarActivity {
         };
 
         this.registerReceiver(alarmReceiver, intentFilter);
+
+        CharSequence text = "Alarm Set for "  + getTimeToAlarmInMinutes() + " minutes from now";
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+
     }
 
-    private long getTime() {
+    private int getTimeToAlarmInMinutes() {
         String newText = ((EditText) findViewById(R.id.alarm_time)).getText().toString();
 
         if(newText.length() == 0) {
             return -1;
         }
-        long convert = Integer.parseInt(newText)*60000;
+        return Integer.parseInt(newText);
+    }
 
-        Calendar time = Calendar.getInstance();
-        time.setTimeInMillis(System.currentTimeMillis());
-        return time.getTimeInMillis()+convert;
+    private long getTime() {
+        int timeInMinutes = getTimeToAlarmInMinutes();
+
+        if(timeInMinutes == -1) {
+            return -1;
+        }
+        long timeInMs = timeInMinutes*60000;
+
+        Calendar currentTime = Calendar.getInstance();
+        currentTime.setTimeInMillis(System.currentTimeMillis());
+        return currentTime.getTimeInMillis()+timeInMs;
     }
 
     protected void createNotification() {
