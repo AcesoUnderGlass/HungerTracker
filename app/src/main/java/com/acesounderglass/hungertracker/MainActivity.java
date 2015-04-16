@@ -110,9 +110,8 @@ public class MainActivity extends ActionBarActivity {
 
         this.registerReceiver(alarmReceiver, intentFilter);
 
-        CharSequence text = "Alarm Set for "  + getTimeToAlarmInMinutes() + " minutes from now";
+        CharSequence text = "Alarm set for "  + getTimeToAlarmInMinutes() + " minutes from now";
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-
     }
 
     private int getTimeToAlarmInMinutes() {
