@@ -4,6 +4,9 @@ android {
     signingConfigs {
         config {
             keyAlias 'HungerTrackerKey'
+            keyPassword System.getenv("key_password")
+            storeFile file(System.getenv("key_path"))
+            storePassword System.getenv("key_password")
         }
     }
     compileSdkVersion 21
