@@ -10,6 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -105,6 +108,11 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 createNotification();
+                Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+                // Vibrate for 500 milliseconds
+                v.vibrate(500);
+                ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+                toneG.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 200);
             }
         };
 
@@ -155,6 +163,7 @@ public class MainActivity extends ActionBarActivity {
                 );
         builder.setContentIntent(resultPendingIntent);
 
+        builder.setAutoCancel(true);
         Notification notification = builder.build();
         notificationManager.notify(2, notification);
     }
