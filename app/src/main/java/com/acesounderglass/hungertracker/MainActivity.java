@@ -146,7 +146,7 @@ public class MainActivity extends ActionBarActivity {
 
     protected void createNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Hunger Tracker")
                 .setContentText("Time to record your fullness level");
         NotificationManager notificationManager =
