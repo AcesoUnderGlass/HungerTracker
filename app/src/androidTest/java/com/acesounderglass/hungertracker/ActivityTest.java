@@ -55,6 +55,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
 
     public void testCanInput() {
         sendKeystrokesToHungerInputBox(new int[]{
+                KeyEvent.KEYCODE_DEL,
                 KeyEvent.KEYCODE_FORWARD_DEL,
                 KeyEvent.KEYCODE_6});
         assertEquals("6", inputText.getText().toString());
@@ -162,6 +163,11 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
         });
         getInstrumentation().waitForIdleSync();
         for(int keycode : keycodes) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             this.sendKeys(keycode);
         }
         getInstrumentation().waitForIdleSync();
