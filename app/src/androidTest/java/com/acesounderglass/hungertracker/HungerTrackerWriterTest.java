@@ -2,6 +2,7 @@ package com.acesounderglass.hungertracker;
 
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.AndroidTestCase;
 import static org.easymock.EasyMock.*;
@@ -32,23 +33,20 @@ public class HungerTrackerWriterTest extends ActivityInstrumentationTestCase2 {
         for (String file : mBase.fileList()) {
             mBase.deleteFile(file);
         }
+
+        hungerTrackerWriter.clearFile();
     }
 
     public void tearDown() {
         getInstrumentation().getTargetContext().deleteFile(fileName);
     }
 
-    public void testCanWriteMultipleDataPointsAndReadToFile() {
-        String[] data = {"foo", "bar", "car", "large"};
-        for(String d : data) {
-            hungerTrackerWriter.writeToFile(d + "\n");
-        }
-
+    public void testWriteToFileWithDate() {
+        hungerTrackerWriter.writeToFileWithDate("9");
+        hungerTrackerWriter.writeToFileWithDate("2");
         String[] retrievedText = hungerTrackerWriter.retrieveAllData().toArray(
                 new String[hungerTrackerWriter.retrieveAllData().size()]);
-
-        for(int i=0; i<data.length; i++) {
-            assertEquals(data[i], retrievedText[i]);
-        }
+        System.out.println(retrievedText);
+        assertEquals(2, retrievedText.length);
     }
 }

@@ -1,6 +1,9 @@
 package com.acesounderglass.hungertracker;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.EditText;
 
 import java.io.File;
@@ -18,39 +21,30 @@ import java.util.Scanner;
  */
 public class HungerTrackerWriter {
 
-    private String filename;
+    private static final String tableName = "fullnessTable";
     private Context mBase;
-    private Scanner scanner;
+    private SQLiteDatabase db;
+    Cursor cursor;
 
     public HungerTrackerWriter() {
 
     }
 
     public HungerTrackerWriter(String filename, Context mBase) {
-        this.filename = filename;
         this.mBase = mBase;
+
+        createOrOpenDb();
     }
 
-    public void writeToFile(String toWrite) {
-
-        try {
-            FileOutputStream fos = mBase.openFileOutput(filename, Context.MODE_APPEND);
-            fos.write(toWrite.getBytes());
-            fos.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+    private void createOrOpenDb() {
+        HungerTrackerSqlHelper dbHelper = new HungerTrackerSqlHelper(mBase);
+        db = dbHelper.getWritableDatabase();
+        db.execSQL("create table if not exists " + tableName + " (timestamp DATETIME, fullness INT)");
     }
 
     public void writeToFileWithDate(String val) {
-        String toWrite = getTimeStamp() + "\t" + val + "\n";
-        try {
-            FileOutputStream fos = mBase.openFileOutput(filename, Context.MODE_APPEND);
-            fos.write(toWrite.getBytes());
-            fos.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        db.execSQL("insert into " + tableName + "(timestamp, fullness) VALUES('" + getTimeStamp() +
+        "', " + val + ")");
     }
 
     private String getTimeStamp() {
@@ -63,28 +57,17 @@ public class HungerTrackerWriter {
 
 
     public void clearFile() {
-        try {
-            FileOutputStream fos = mBase.openFileOutput(filename, Context.MODE_PRIVATE);
-            String empty = "";
-            fos.write(empty.getBytes());
-            fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        db.delete(tableName, null, null);
     }
 
     public ArrayList<String> retrieveAllData() {
         ArrayList<String> list = new ArrayList<>();
-        try {
-            scanner = new Scanner(mBase.openFileInput(filename));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        scanner.useDelimiter("\n");
+        cursor = db.rawQuery("SELECT * FROM " + tableName, null);
+        cursor.moveToFirst();
+
         String nextLine  = getNextLine();
-        while (nextLine!=null) {
+
+        while (nextLine != null) {
             list.add(nextLine);
             nextLine = getNextLine();
         }
@@ -93,14 +76,31 @@ public class HungerTrackerWriter {
     }
 
     public String getNextLine() {
-        if(scanner.hasNext()) {
-            return scanner.next();
-        }
-        return null;
+
+        if (cursor.isAfterLast())
+            return null;
+
+        String result = cursor.getString(0) + "\t\t" + cursor.getString(1);
+        cursor.moveToNext();
+        return result;
     }
 
     private String bytesToString(byte[] bytes) {
         return new String(bytes);
+    }
+
+    private class HungerTrackerSqlHelper extends SQLiteOpenHelper {
+
+        public HungerTrackerSqlHelper(Context context) {
+            super(context, "htDB", null, 1);
+        }
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
     }
 }
 
